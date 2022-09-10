@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiktok Downloader</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-5">
+            <div class="card-header">Tiktok Downloader</div>
+            <div class="card-body">
+                <form action="" id="ttForm">
+                    <label for="ttUrl">Tiktok URL</label>
+                    <input type="text" name="url" id="ttUrl" class="form-control">
+                    <button type="submit" class="btn btn-primary mt-2">Download</button>
+                </form>
+                <div class="text-center" id="videoDown">
+                    <!-- <h3>Video</h3> -->
+                </div>
+                <div class="text-center" id="audioDown">
+                    <!-- <h3>Audio</h3> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"></script>
+<script>
+class Loading {
+    constructor(e, options){
+        this.html = e.innerHTML;
+        this.e = e;
+        if (options?.now) this.start();
+    }
+    spinner = `<div class="spinner-border spinner-border-sm" role="status">
+  <span class="visually-hidden">Loading...</span>
+</div>`
+    start(){
+        this.e.innerHTML = this.spinner;
+        this.e.setAttribute('disabled', '');
+    }
+    stop(){
+        this.e.innerHTML = this.html;
+        this.e.removeAttribute('disabled');
+    }
+}
+const ttForm = document.querySelector('#ttForm');
+const videoDown = document.querySelector('#videoDown');
+const audioDown = document.querySelector('#audioDown');
+ttForm.addEventListener('submit', async (e)=> {
+    e.preventDefault();
+    const ttUrl = e.target.querySelector('#ttUrl')
+    const url = ttUrl.value.split('?')[0]
+    videoDown.innerHTML = '';
+    audioDown.innerHTML = '';
+    const loading = new Loading(e.target.querySelector('button[type=submit]'), { now: true });
+    const ttRes = await fetch(`https://bluu-api.herokuapp.com/api/v1/downloader/ttdl?${new URLSearchParams((Object.entries({
+        apikey: 'a68c1edcdefead5f32175a8037fbe0',
+        url,
+    })))}`)
+    const ttDown = await ttRes.json();
+    loading.stop()
+    videoDown.innerHTML = `<h3>Video</h3>`;
+    ttDown.video.forEach(l => {
+        videoDown.innerHTML += `<a href="${l}" download class="btn btn-success mx-1 my-1">Download</a>`
+    })
+    audioDown.innerHTML = `<h3>Audio</h3>`;
+    ttDown.audio.forEach(l => {
+        audioDown.innerHTML += `<a href="${l}" download class="btn btn-success mx-1 my-1">Download</a>`
+    })
+})
+</script>
+</body>
+</html>
